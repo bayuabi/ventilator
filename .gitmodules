@@ -1,0 +1,6 @@
+[submodule "Ventilator-Arduino/lib/HX711"]
+	path = Ventilator-Arduino/lib/HX711
+	url = https://github.com/bogde/HX711.git
+[submodule "Ventilator-Arduino/lib/ArduinoJson"]
+	path = Ventilator-Arduino/lib/ArduinoJson
+	url = https://github.com/bblanchon/ArduinoJson.git
