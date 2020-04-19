@@ -1,0 +1,2 @@
+rootProject.name='UB Ventilator'
+include ':app'
