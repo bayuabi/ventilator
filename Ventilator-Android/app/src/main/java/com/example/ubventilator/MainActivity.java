@@ -116,6 +116,74 @@ public class MainActivity extends AppCompatActivity {
 //        } while (!btSocket.isConnected() && counter < 3);
 
         mChart = findViewById(R.id.line_chart);
+
+        chartConfig();
+
+        final Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (!Thread.currentThread().isInterrupted() && !stopThread)
+                    while (true) {
+                        try {
+                            inputStream = btSocket.getInputStream();
+                            final int byteCount = inputStream.available();
+                            if (byteCount > 0) {
+                                String msg = "";
+                                int tekanan1 = 0;
+                                char ch;
+                                while ((ch = (char) inputStream.read()) != '\n') {
+                                    msg += ch;
+                                }
+                                final String message = msg;
+
+                                try {
+                                    JSONObject jsonObj = new JSONObject(message);
+
+                                    tekanan1 = jsonObj.getInt("tekanan1");
+                                } catch (JSONException e) {
+                                    //
+                                }
+                                final int tekanan = tekanan1;
+
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        addEntry((float) tekanan);
+                                    }
+                                });
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+            }
+        });
+
+        thread.start();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    private void chartConfig(){
         mChart.getDescription().setEnabled(false);
 //        mChart.getDescription().setText("Realtime Pressure Value");
         mChart.getDescription().setTextColor(Color.WHITE);
@@ -157,93 +225,18 @@ public class MainActivity extends AppCompatActivity {
         leftAxis.setDrawGridLines(true);
         leftAxis.setGridLineWidth(2f);
         leftAxis.setAxisMinimum(-20f);
-        leftAxis.setAxisMaximum(100f);
-        leftAxis.setLabelCount(7);
+        leftAxis.setAxisMaximum(20f);
+        leftAxis.setLabelCount(5);
 //        leftAxis.setGranularity(7f);
         leftAxis.setEnabled(true);
 
         YAxis rightAxis = mChart.getAxisRight();
-        rightAxis.setLabelCount(7, true);
+        rightAxis.setLabelCount(5, true);
         rightAxis.setEnabled(true);
 
         mChart.getAxisLeft().setDrawGridLines(false);
         mChart.getXAxis().setDrawGridLines(false);
         mChart.setDrawBorders(false);
-
-
-
-
-
-        final Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!Thread.currentThread().isInterrupted() && !stopThread)
-                    while (true) {
-                        try {
-                            inputStream = btSocket.getInputStream();
-                            final int byteCount = inputStream.available();
-                            if (byteCount > 0) {
-                                String msg = "";
-                                int tekanan1 = 0;
-                                char ch;
-                                while ((ch = (char) inputStream.read()) != '\n') {
-                                    msg += ch;
-                                }
-                                final String message = msg;
-
-                                try {
-                                    JSONObject jsonObj = new JSONObject(message);
-
-                                    tekanan1 = jsonObj.getInt("tekanan1");
-                                } catch (JSONException e) {
-                                    //
-                                }
-                                final int tekanan = tekanan1;
-
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        addEntry((float) tekanan);
-                                    }
-                                });
-
-//                                Thread.sleep(500);
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-
-//                        try{
-//                            Thread.sleep(100);
-//                        }catch (InterruptedException e){
-//                            e.printStackTrace();
-//                        }
-                    }
-            }
-        });
-
-        thread.start();
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     private LineDataSet createSet() {

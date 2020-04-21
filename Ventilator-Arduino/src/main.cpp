@@ -5,7 +5,7 @@
 
 SoftwareSerial blutut(11, 12);
 
-#define TEST_BLUTUT false
+#define TEST_BLUTUT true
 #define TEST_VALVE false
 #define TEST_HX711 false
 
@@ -33,7 +33,8 @@ float sensorTekanan1, sensorTekanan2;
 unsigned long startTime;
 bool valveOnState, valveOffState = false;
 float ambientIntercept;
-float sensorIntercept, sensorSlope;
+float sensorIntercept = 89.803;
+float sensorSlope = 0.00005309;
 
 void testBlutut();
 void testValve();
@@ -98,7 +99,7 @@ void loop() {
     case MODE_VENTILATOR_MANUAL :
       if(!valveOnState)
         {
-          if(millis() - startTime >= 500)   //DURASI NYALA
+          if(millis() - startTime >= 1000)   //DURASI NYALA
             {
               valveOnState = !valveOnState;
               startTime = millis();
@@ -106,13 +107,13 @@ void loop() {
         }
       if(valveOnState)
         {
-          if(millis() - startTime >= 1000)   //DURASI MATI
+          if(millis() - startTime >= 2000)   //DURASI MATI
             {
               valveOnState = !valveOnState;
               startTime = millis();
             }
         }
-      digitalWrite(LED_BUILTIN, !valveOnState);
+      digitalWrite(VALVE_PIN_1, !valveOnState);
 
       break;
     
@@ -174,7 +175,7 @@ bool hx711Read(int number, float *data){
       case 1 :
         if (sensor1.is_ready()) 
           {
-            *data = sensor1.read();
+            *data = (float)sensor1.read();
             return true;
           } 
           else
@@ -214,4 +215,7 @@ void sendData(float data1, float data2){
 
   blutut.print(" ");
   blutut.println(data);
+
+  Serial.print(" ");
+  Serial.println(data);
 }
